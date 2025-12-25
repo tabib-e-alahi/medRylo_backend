@@ -2,7 +2,7 @@ import { Router } from "express";
 import * as categoryController from "./category.controller";
 import { requireAdmin } from "../../middleware/auth.middleware";
 
-const categoryRoutes = Router();
+const categoryRoutes: Router  = Router();
 
 categoryRoutes.get("/", ...requireAdmin, categoryController.getAllCategories);
 categoryRoutes.get("/:id", ...requireAdmin, categoryController.getCategoryById);

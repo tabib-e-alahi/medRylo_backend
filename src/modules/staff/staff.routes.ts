@@ -2,7 +2,7 @@ import { Router } from "express";
 import authMiddleware, { UserRole } from "../../middleware/auth.middleware";
 import * as staffController from "./staff.controller";
 
-const router = Router();
+const router: Router  = Router();
 
 router.get("/me", authMiddleware(UserRole.STAFF), staffController.getMyStaffProfile);
 router.get("/", authMiddleware(UserRole.PHARMACY), staffController.getStaffList);

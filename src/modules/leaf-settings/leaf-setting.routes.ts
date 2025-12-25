@@ -2,7 +2,7 @@ import { Router } from "express";
 import * as leafSettingController from "./leaf-setting.controller";
 import { requireAdmin } from "../../middleware/auth.middleware";
 
-const leafSettingRoutes = Router();
+const leafSettingRoutes: Router  = Router();
 
 leafSettingRoutes.get("/", ...requireAdmin, leafSettingController.getAllLeafSettings);
 leafSettingRoutes.get("/:id", ...requireAdmin, leafSettingController.getLeafSettingById);

@@ -41,7 +41,21 @@ var envConfig = {
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASS: process.env.SMTP_PASS,
   SMTP_FROM: process.env.SMTP_FROM,
-  SLACK_WEBHOOK_URL: process.env.SLACK_WEBHOOK_URL
+  SLACK_WEBHOOK_URL: process.env.SLACK_WEBHOOK_URL,
+  ADMIN_Name: process.env.ADMIN_Name,
+  ADMIN_Email: process.env.ADMIN_Email,
+  ADMIN_Password: process.env.ADMIN_Password,
+  PHARMACY_Name: process.env.PHARMACY_Name,
+  PHARMACY_Email: process.env.PHARMACY_Email,
+  PHARMACY_Password: process.env.PHARMACY_Password,
+  STAFF_Name: process.env.STAFF_Name,
+  STAFF_Email: process.env.STAFF_Email,
+  STAFF_Password: process.env.STAFF_Password,
+  USER_Name: process.env.USER_Name,
+  USER_Email: process.env.USER_Email,
+  USER_Password: process.env.USER_Password,
+  PENDING_OWNER_EMAIL: process.env.PENDING_OWNER_EMAIL,
+  REJECTED_OWNER_EMAIL: process.env.REJECTED_OWNER_EMAIL
 };
 var route_config_default = envConfig;
 
@@ -561,11 +575,12 @@ var adapter = new PrismaPg({ connectionString });
 var prisma = new PrismaClient({ adapter });
 
 // src/lib/auth.ts
+import { oAuthProxy } from "better-auth/plugins";
 var auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql"
   }),
-  baseURL: route_config_default.BACKEND_BASE_URL,
+  baseURL: route_config_default.FRONTEND_URL,
   secret: route_config_default.BETTER_AUTH_SECRET,
   advanced: {
     cookies: {
@@ -593,7 +608,6 @@ var auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false
-    //! set true in production
   },
   socialProviders: {
     google: {
@@ -649,7 +663,7 @@ var auth = betterAuth({
       }
     }
   },
-  plugins: [],
+  plugins: [oAuthProxy()],
   databaseHooks: {
     user: {
       create: {
@@ -778,23 +792,27 @@ var deleteFromCloudinary = async (url) => {
 // src/modules/auth/auth.service.ts
 var DEMO_USERS = {
   admin: {
-    name: "Demo Admin",
-    email: "demo-admin@medrylo.com",
+    name: route_config_default.ADMIN_Name,
+    email: route_config_default.ADMIN_Email,
+    password: route_config_default.ADMIN_Password,
     role: "ADMIN"
   },
   pharmacy: {
-    name: "Demo Pharmacy",
-    email: "demo-pharmacy@medrylo.com",
+    name: route_config_default.PHARMACY_Name,
+    email: route_config_default.PHARMACY_Email,
+    password: route_config_default.PHARMACY_Password,
     role: "PHARMACY"
   },
   staff: {
-    name: "Demo Staff",
-    email: "demo-staff@medrylo.com",
+    name: route_config_default.STAFF_Name,
+    email: route_config_default.STAFF_Email,
+    password: route_config_default.STAFF_Password,
     role: "STAFF"
   },
   user: {
-    name: "Demo User",
-    email: "demo-user@medrylo.com",
+    name: route_config_default.USER_Name,
+    email: route_config_default.USER_Email,
+    password: route_config_default.USER_Password,
     role: "USER"
   }
 };
@@ -802,7 +820,6 @@ async function getMe(headers) {
   const session = await auth.api.getSession({
     headers: fromNodeHeaders(headers)
   });
-  console.log(session);
   if (!session?.user) {
     throw new UnauthorizedError("Not authenticated");
   }
@@ -828,10 +845,14 @@ async function getMe(headers) {
 }
 async function demoLogin(role) {
   const demoUser = DEMO_USERS[role];
-  const password = route_config_default.DEMO_USER_PASSWORD;
+  const password = demoUser.password;
+  console.log("\n============== From aut service demologin: existing ============\n", demoUser.email, "\n===================\n");
   const existing = await prisma.user.findUnique({
-    where: { email: demoUser.email }
+    where: {
+      email: demoUser.email
+    }
   });
+  console.log("\n============== From aut service demologin: existing ============\n", existing, "\n===================\n");
   if (!existing) {
     await auth.api.signUpEmail({
       body: {
@@ -1004,11 +1025,10 @@ var demoLoginController = async (req, res, next) => {
     if (signInResult && typeof signInResult === "object" && "token" in signInResult) {
       const token = signInResult.token;
       const signedToken = `${token}.${await makeSignature(token, route_config_default.BETTER_AUTH_SECRET)}`;
-      const isProduction = route_config_default.NODE_ENV === "production";
       res.cookie("session_token", signedToken, {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
         path: "/",
         maxAge: 7 * 24 * 60 * 60 * 1e3
         // 7 days
@@ -1060,6 +1080,7 @@ var authMiddleware = (...roles) => {
       const session = await auth.api.getSession({
         headers: fromNodeHeaders2(req.headers)
       });
+      console.log("\n============== From auth middleware: session ============\n", session, "\n===================\n");
       if (!session?.user) {
         throw new UnauthorizedError(
           "You are not logged in. Please log in to continue."
@@ -1067,6 +1088,7 @@ var authMiddleware = (...roles) => {
       }
       const { user } = session;
       const typedUser = user;
+      console.log("\n============== From auth middleware: typedUser ============\n", typedUser, "\n===================\n");
       if (typedUser.isDeleted) {
         throw new ForbiddenError(
           "This account no longer exists. Please contact support."
@@ -1156,7 +1178,7 @@ var uploadUserAvatar = (req, res, next) => {
 
 // src/modules/auth/auth.routes.ts
 var authRoutes = Router();
-authRoutes.get("/me", getMeController);
+authRoutes.get("/me", ...requireAuth, getMeController);
 authRoutes.put(
   "/profile-image",
   ...requireAuth,
@@ -5550,6 +5572,7 @@ app.use(
   cors({
     origin: [
       route_config_default.FRONTEND_URL || "http://localhost:3000",
+      route_config_default.BACKEND_BASE_URL || "http://localhost:5000",
       "http://localhost:3000",
       "http://localhost:5000"
     ],

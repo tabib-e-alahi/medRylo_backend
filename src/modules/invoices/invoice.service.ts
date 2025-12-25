@@ -180,7 +180,8 @@ export async function createInvoice(userId: string, role: UserRole, data: Create
         },
       },
       include: invoiceInclude,
-    });
+    },
+    );
 
     for (const item of data.items) {
       await tx.pharmacyInventory.update({
@@ -209,7 +210,12 @@ export async function createInvoice(userId: string, role: UserRole, data: Create
       where: { id: invoice.id },
       include: invoiceInclude,
     });
-  });
+
+  },
+    {
+      // maxWait: 10000,
+      timeout: 20000,
+    });
 }
 
 export async function getInvoices(userId: string, role: UserRole, query: InvoiceQueryInput) {

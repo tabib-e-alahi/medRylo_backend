@@ -2,7 +2,7 @@ import { Router } from "express";
 import * as medicineTypeController from "./medicine-type.controller";
 import { requireAdmin } from "../../middleware/auth.middleware";
 
-const medicineTypeRoutes = Router();
+const medicineTypeRoutes: Router  = Router();
 
 medicineTypeRoutes.get("/", ...requireAdmin, medicineTypeController.getAllMedicineTypes);
 medicineTypeRoutes.get("/:id", ...requireAdmin, medicineTypeController.getMedicineTypeById);

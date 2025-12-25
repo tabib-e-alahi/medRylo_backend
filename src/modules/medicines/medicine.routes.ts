@@ -3,7 +3,7 @@ import * as medicineController from "./medicine.controller";
 import { requireAdmin } from "../../middleware/auth.middleware";
 import { uploadMedicineImage, uploadMedicineImageOptional } from "../../middleware/upload.middleware";
 
-const medicineRoutes = Router();
+const medicineRoutes: Router  = Router();
 
 medicineRoutes.get("/", ...requireAdmin, medicineController.getAllMedicines);
 medicineRoutes.get("/:id", ...requireAdmin, medicineController.getMedicineById);

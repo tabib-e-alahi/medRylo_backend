@@ -13,6 +13,7 @@ app.use(
   cors({
     origin: [
       envConfig.FRONTEND_URL || "http://localhost:3000",
+      envConfig.BACKEND_BASE_URL || "http://localhost:5000",
       "http://localhost:3000",
       "http://localhost:5000",
     ],

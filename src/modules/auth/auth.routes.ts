@@ -10,8 +10,7 @@ import { uploadUserAvatar } from "../../middleware/upload.middleware";
 
 const authRoutes:Router = Router();
 
-// GET /api/v1/auth/me — current user session
-authRoutes.get("/me", getMeController);
+authRoutes.get("/me", ...requireAuth, getMeController);
 
 authRoutes.put(
   "/profile-image",

@@ -6,40 +6,40 @@ import { UnauthorizedError } from "../../errors/AppError";
 import type { IncomingHttpHeaders } from "http";
 import { deleteFromCloudinary, deleteFromCloudinaryByPublicId } from "../../utils/claudinary";
 
-// Demo user definitions
 const DEMO_USERS = {
   admin: {
-    name: "Demo Admin",
-    email: "demo-admin@medrylo.com",
+    name: envConfig.ADMIN_Name,
+    email: envConfig.ADMIN_Email,
+    password:envConfig.ADMIN_Password,
     role: "ADMIN",
   },
   pharmacy: {
-    name: "Demo Pharmacy",
-    email: "demo-pharmacy@medrylo.com",
+    name: envConfig.PHARMACY_Name,
+    email: envConfig.PHARMACY_Email,
+    password:envConfig.PHARMACY_Password,
     role: "PHARMACY",
   },
   staff: {
-    name: "Demo Staff",
-    email: "demo-staff@medrylo.com",
+    name: envConfig.STAFF_Name,
+    email: envConfig.STAFF_Email,
+    password:envConfig.STAFF_Password,
     role: "STAFF",
   },
   user: {
-    name: "Demo User",
-    email: "demo-user@medrylo.com",
+    name: envConfig.USER_Name,
+    email: envConfig.USER_Email,
+    password:envConfig.USER_Password,
     role: "USER",
   },
 } as const;
 
 type DemoRole = keyof typeof DEMO_USERS;
 
-/**
- * Get current user session from request headers
- */
+
 export async function getMe(headers: IncomingHttpHeaders) {
   const session = await auth.api.getSession({
     headers: fromNodeHeaders(headers),
   });
-console.log(session);
   if (!session?.user) {
     throw new UnauthorizedError("Not authenticated");
   }
@@ -71,15 +71,18 @@ console.log(session);
  */
 export async function demoLogin(role: DemoRole) {
   const demoUser = DEMO_USERS[role];
-  const password = envConfig.DEMO_USER_PASSWORD;
-
+  const password = demoUser.password;
+ console.log("\n============== From aut service demologin: existing ============\n", demoUser.email, "\n===================\n");
   // Check if user already exists
   const existing = await prisma.user.findUnique({
-    where: { email: demoUser.email },
-  });
+    where:{
+      email: demoUser.email
+    }
+  })
+
+ console.log("\n============== From aut service demologin: existing ============\n", existing, "\n===================\n");
 
   if (!existing) {
-    // Create via Better Auth so password is hashed properly
     await auth.api.signUpEmail({
       body: {
         name: demoUser.name,

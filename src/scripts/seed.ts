@@ -1,29 +1,29 @@
+import envConfig from "../config/route.config";
 import { auth } from "../lib/auth";
 import { prisma } from "../lib/prisma";
 
-const DEMO_PASSWORD = process.env.DEMO_USER_PASSWORD ?? "DemoPass@2024!";
 
 async function upsertUser(
   name: string,
   email: string,
+  password: string,
   role: string,
   inviteCode?: string
 ) {
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-
     await prisma.user.update({ where: { email }, data: { role: role as any } });
     return existing;
   }
 
-  await auth.api.signUpEmail({
-    body: { name, email, password: DEMO_PASSWORD },
+  const res = await auth.api.signUpEmail({
+    body: { name, email, password },
     headers: new Headers({
       "x-intended-role": role,
       ...(inviteCode ? { "x-staff-invite-code": inviteCode } : {}),
     }),
   });
-
+console.log("===============> ", res);
   const user = await prisma.user.findUniqueOrThrow({ where: { email } });
   // Force role — needed because Google-OAuth users skip the hook
   await prisma.user.update({ where: { id: user.id }, data: { role: role as any } });
@@ -42,9 +42,9 @@ async function main() {
   // ── 1. Users ────────────────────────────────────────────────────────────────
   console.log("  → Users");
 
-  const adminUser = await upsertUser("Demo Admin", "admin@meditrack.com", "ADMIN");
-  const pharmacyUser = await upsertUser("Demo Pharmacy", "pharmacy@meditrack.com", "PHARMACY");
-  const userUser = await upsertUser("Demo User", "user@meditrack.com", "USER");
+  const adminUser = await upsertUser(envConfig.ADMIN_Name, envConfig.ADMIN_Email, envConfig.ADMIN_Password, "ADMIN");
+  const pharmacyUser = await upsertUser(envConfig.PHARMACY_Name, envConfig.PHARMACY_Email, envConfig.PHARMACY_Password, "PHARMACY");
+  const userUser = await upsertUser(envConfig.USER_Name, envConfig.USER_Email, envConfig.USER_Password, "USER");
   // Staff is created after pharmacy so we have the invite code
   // We'll wire it manually below
 
@@ -1795,10 +1795,10 @@ async function main() {
   }
 
   // Pending pharmacy
-  const pendingOwnerEmail = "pending-owner@meditrack.com";
+  const pendingOwnerEmail = envConfig.PENDING_OWNER_EMAIL;
   let pendingOwner = await prisma.user.findUnique({ where: { email: pendingOwnerEmail } });
   if (!pendingOwner) {
-    pendingOwner = await upsertUser("Pending Pharmacy Owner", pendingOwnerEmail, "PHARMACY");
+    pendingOwner = await upsertUser("Pending Pharmacy Owner", pendingOwnerEmail,envConfig.PHARMACY_Password, "PHARMACY");
   }
   await prisma.pharmacy.upsert({
     where: { ownerId: pendingOwner.id },
@@ -1811,10 +1811,10 @@ async function main() {
   });
 
   // Rejected pharmacy
-  const rejectedOwnerEmail = "rejected-owner@meditrack.com";
+  const rejectedOwnerEmail = envConfig.REJECTED_OWNER_EMAIL;
   let rejectedOwner = await prisma.user.findUnique({ where: { email: rejectedOwnerEmail } });
   if (!rejectedOwner) {
-    rejectedOwner = await upsertUser("Rejected Owner", rejectedOwnerEmail, "PHARMACY");
+    rejectedOwner = await upsertUser("Rejected Owner", rejectedOwnerEmail,envConfig.PHARMACY_Password, "PHARMACY");
   }
   await prisma.pharmacy.upsert({
     where: { ownerId: rejectedOwner.id },
@@ -1832,7 +1832,7 @@ async function main() {
   const staffEmail = "staff@meditrack.com";
   let staffUser = await prisma.user.findUnique({ where: { email: staffEmail } });
   if (!staffUser) {
-    staffUser = await upsertUser("Demo Staff", staffEmail, "STAFF", "DEMO-STAFF-2024");
+    staffUser = await upsertUser("Demo Staff", staffEmail, envConfig.STAFF_Password, "STAFF", "DEMO-STAFF-2024");
   }
   await prisma.staff.upsert({
     where: { userId: staffUser.id },
@@ -2114,10 +2114,10 @@ async function main() {
   console.log("══════════════════════════════════════════════════");
   console.log("  DEMO CREDENTIALS");
   console.log("══════════════════════════════════════════════════");
-  console.log(`  Admin    → admin@meditrack.com    / ${DEMO_PASSWORD}`);
-  console.log(`  Pharmacy → pharmacy@meditrack.com / ${DEMO_PASSWORD}`);
-  console.log(`  Staff    → staff@meditrack.com    / ${DEMO_PASSWORD}`);
-  console.log(`  User     → user@meditrack.com     / ${DEMO_PASSWORD}`);
+  console.log(`  Admin    → ${envConfig.ADMIN_Email}`);
+  console.log(`  Pharmacy → ${envConfig.PHARMACY_Email}`);
+  console.log(`  Staff    → ${envConfig.STAFF_Email} `);
+  console.log(`  User     → ${envConfig.USER_Email} `);
   console.log("══════════════════════════════════════════════════\n");
 }
 

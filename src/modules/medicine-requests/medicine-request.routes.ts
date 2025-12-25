@@ -2,7 +2,7 @@ import { Router } from "express";
 import authMiddleware, { UserRole, requireAdmin } from "../../middleware/auth.middleware";
 import * as medicineRequestController from "./medicine-request.controller";
 
-const router = Router();
+const router: Router  = Router();
 const requireApprovedPharmacyUser = [authMiddleware(UserRole.PHARMACY)];
 
 router.get("/pharmacy", ...requireApprovedPharmacyUser, medicineRequestController.getMyMedicineRequests);

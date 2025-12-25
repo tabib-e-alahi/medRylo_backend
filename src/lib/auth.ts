@@ -3,13 +3,14 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import envConfig from "../config/route.config";
 import { UserAccountStatus, UserRole } from "../../generated/prisma/enums";
+import { oAuthProxy } from "better-auth/plugins";
 
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
-    baseURL: envConfig.BACKEND_BASE_URL,
+    baseURL: envConfig.FRONTEND_URL,
     secret: envConfig.BETTER_AUTH_SECRET,
 
     advanced: {
@@ -37,7 +38,7 @@ export const auth = betterAuth({
 
     emailAndPassword: {
         enabled: true,
-        requireEmailVerification: false, //! set true in production
+        requireEmailVerification: false,
     },
 
     socialProviders: {
@@ -98,7 +99,7 @@ export const auth = betterAuth({
         },
     },
 
-    plugins: [],
+    plugins: [oAuthProxy()],
 
     databaseHooks: {
         user: {

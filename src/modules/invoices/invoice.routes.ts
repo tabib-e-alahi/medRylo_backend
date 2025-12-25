@@ -2,7 +2,7 @@ import { Router } from "express";
 import authMiddleware, { UserRole } from "../../middleware/auth.middleware";
 import * as invoiceController from "./invoice.controller";
 
-const router = Router();
+const router: Router  = Router();
 const requireSalesUser = [authMiddleware(UserRole.PHARMACY, UserRole.STAFF)];
 
 router.get("/", ...requireSalesUser, invoiceController.getInvoices);

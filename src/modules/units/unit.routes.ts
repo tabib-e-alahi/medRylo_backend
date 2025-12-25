@@ -2,7 +2,7 @@ import { Router } from "express";
 import * as unitController from "./unit.controller";
 import { requireAdmin } from "../../middleware/auth.middleware";
 
-const unitRoutes = Router();
+const unitRoutes : Router = Router();
 
 unitRoutes.get("/", ...requireAdmin, unitController.getAllUnits);
 unitRoutes.get("/:id", ...requireAdmin, unitController.getUnitById);

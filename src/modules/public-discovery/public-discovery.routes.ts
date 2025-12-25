@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as publicDiscoveryController from "./public-discovery.controller";
 
-const publicDiscoveryRoutes = Router();
+const publicDiscoveryRoutes: Router  = Router();
 
 publicDiscoveryRoutes.get("/medicine-filters", publicDiscoveryController.getMedicineFilters);
 publicDiscoveryRoutes.get("/medicines", publicDiscoveryController.getMedicines);

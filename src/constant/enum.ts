@@ -1,5 +1,3 @@
-// src/constants/enums.ts
-
 export const USER_ROLE = {
   ADMIN: "ADMIN",
   PHARMACY: "PHARMACY",

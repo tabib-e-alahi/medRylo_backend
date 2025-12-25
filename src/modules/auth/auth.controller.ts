@@ -7,10 +7,7 @@ import envConfig from "../../config/route.config";
 import { BadRequestError } from "../../errors/AppError";
 import { uploadImage } from "../uploads/upload.service";
 
-/**
- * GET /api/v1/auth/me
- * Returns the current authenticated user and session info
- */
+
 export const getMeController = async (
   req: Request,
   res: Response,
@@ -24,11 +21,7 @@ export const getMeController = async (
   }
 };
 
-/**
- * POST /api/v1/auth/demo-login/:role
- * Signs in as a demo user (creates if needed)
- * Returns set-cookie header for session
- */
+
 export const demoLoginController = async (
   req: Request,
   res: Response,
@@ -38,18 +31,15 @@ export const demoLoginController = async (
     const { role } = demoLoginParamsSchema.parse(req.params);
 
     const signInResult = await demoLogin(role);
-
-    // Better Auth signInEmail returns { token, user } 
-    // We need to set the session cookie manually since we're using the internal API
+    
     if (signInResult && typeof signInResult === "object" && "token" in signInResult) {
       const token = (signInResult as any).token;
       const signedToken = `${token}.${await makeSignature(token, envConfig.BETTER_AUTH_SECRET)}`;
-      const isProduction = envConfig.NODE_ENV === "production";
 
       res.cookie("session_token", signedToken, {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
         path: "/",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });

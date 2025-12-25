@@ -3,7 +3,7 @@ import * as pharmacyController from "./pharmacy.controller";
 import { requireAuth, requireAdmin } from "../../middleware/auth.middleware";
 import { uploadPharmacyLogo, uploadPharmacyLogoOptional } from "../../middleware/upload.middleware";
 
-const router = Router();
+const router: Router = Router();
 
 // Pharmacy status, creation and resubmission
 router.get("/status", ...requireAuth, pharmacyController.getMyPharmacyStatus);
