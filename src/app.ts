@@ -23,7 +23,7 @@ app.use(
   })
 );
 
-// ── Better Auth — MUST be before express.json() ──────────
+
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
 // ── Body parsing ──────────────────────────────────────────
@@ -35,10 +35,10 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok", env: envConfig.NODE_ENV, ts: new Date().toISOString() });
 });
 
-// ── API routes ────────────────────────────────────────────
+
 app.use("/api/v1", router);
 
-// ── Error handling ────────────────────────────────────────
+
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 
