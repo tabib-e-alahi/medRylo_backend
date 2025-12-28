@@ -17,7 +17,7 @@ const authMiddleware = (...roles: UserRole[]) => {
         headers: fromNodeHeaders(req.headers),
       });
 
-      console.log("\n============== From auth middleware: session ============\n", session, "\n===================\n");
+    
       
       if (!session?.user) {
         throw new UnauthorizedError(
@@ -26,8 +26,6 @@ const authMiddleware = (...roles: UserRole[]) => {
       }
       const { user } = session;
       const typedUser = user as unknown as Express.Request["user"];
-
-      console.log("\n============== From auth middleware: typedUser ============\n", typedUser, "\n===================\n");
 
       if (typedUser.isDeleted) {
         throw new ForbiddenError(

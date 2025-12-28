@@ -72,7 +72,7 @@ export async function getMe(headers: IncomingHttpHeaders) {
 export async function demoLogin(role: DemoRole) {
   const demoUser = DEMO_USERS[role];
   const password = demoUser.password;
- console.log("\n============== From aut service demologin: existing ============\n", demoUser.email, "\n===================\n");
+
   // Check if user already exists
   const existing = await prisma.user.findUnique({
     where:{
@@ -80,7 +80,6 @@ export async function demoLogin(role: DemoRole) {
     }
   })
 
- console.log("\n============== From aut service demologin: existing ============\n", existing, "\n===================\n");
 
   if (!existing) {
     await auth.api.signUpEmail({

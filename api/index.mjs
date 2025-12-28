@@ -846,13 +846,13 @@ async function getMe(headers) {
 async function demoLogin(role) {
   const demoUser = DEMO_USERS[role];
   const password = demoUser.password;
-  console.log("\n============== From aut service demologin: existing ============\n", demoUser.email, "\n===================\n");
+
   const existing = await prisma.user.findUnique({
     where: {
       email: demoUser.email
     }
   });
-  console.log("\n============== From aut service demologin: existing ============\n", existing, "\n===================\n");
+
   if (!existing) {
     await auth.api.signUpEmail({
       body: {
@@ -1080,7 +1080,7 @@ var authMiddleware = (...roles) => {
       const session = await auth.api.getSession({
         headers: fromNodeHeaders2(req.headers)
       });
-      console.log("\n============== From auth middleware: session ============\n", session, "\n===================\n");
+ 
       if (!session?.user) {
         throw new UnauthorizedError(
           "You are not logged in. Please log in to continue."
@@ -1088,7 +1088,7 @@ var authMiddleware = (...roles) => {
       }
       const { user } = session;
       const typedUser = user;
-      console.log("\n============== From auth middleware: typedUser ============\n", typedUser, "\n===================\n");
+     
       if (typedUser.isDeleted) {
         throw new ForbiddenError(
           "This account no longer exists. Please contact support."
