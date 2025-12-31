@@ -66,9 +66,7 @@ export async function getMe(headers: IncomingHttpHeaders) {
   };
 }
 
-/**
- * Demo login: find or create demo user, then sign in
- */
+
 export async function demoLogin(role: DemoRole) {
   const demoUser = DEMO_USERS[role];
   const password = demoUser.password;
