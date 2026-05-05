@@ -1,0 +1,71 @@
+enum UserRole {
+  ADMIN
+  PHARMACY
+  STAFF
+  USER
+}
+
+enum UserAccountStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum MedicineStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+}
+
+enum PharmacyInventoryStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum MedicineRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PharmacyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PharmacyType {
+  RETAIL
+  WHOLESALE
+  HOSPITAL
+  CLINIC
+}
+
+enum PurchaseStatus {
+  PENDING
+  RECEIVED
+  PARTIAL
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  PARTIAL
+  CANCELLED
+}
+
+enum PaymentMode {
+  CASH
+  CARD
+  MOBILE_BANKING
+  BANK_TRANSFER
+}

@@ -1,0 +1,3 @@
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "imagePublicId" TEXT;
+ALTER TABLE "medicines" ADD COLUMN IF NOT EXISTS "imagePublicId" TEXT;
+ALTER TABLE "pharmacies" ADD COLUMN IF NOT EXISTS "logoPublicId" TEXT;

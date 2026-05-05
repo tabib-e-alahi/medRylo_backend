@@ -1,0 +1,18 @@
+// ── LeafSetting ───────────────────────────────────────────────────────────────
+// Tracks packaging format (e.g. "10 leaves / 10 strips per box")
+model LeafSetting {
+  id             String    @id @default(cuid())
+  name           String    @unique
+  leavesPerStrip Int
+  stripsPerBox   Int
+  description    String?
+  isActive       Boolean   @default(true)
+  isDeleted      Boolean   @default(false)
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  medicines Medicine[]
+
+  @@map("leaf_settings")
+}

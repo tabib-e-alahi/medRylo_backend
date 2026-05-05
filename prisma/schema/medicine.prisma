@@ -1,0 +1,139 @@
+model Medicine {
+  id            String         @id @default(cuid())
+  name          String
+  genericName   String?
+  strength      String?
+  boxSize       String?
+  shelf         String?
+  price         Decimal        @db.Decimal(10, 2)
+  supplierPrice Decimal?       @db.Decimal(10, 2)
+  vat           Decimal?       @default(0) @db.Decimal(5, 2)
+  expiryDate    DateTime?
+  stockQuantity Int            @default(0)
+  image         String?
+  imagePublicId String?
+  description   String?
+  status        MedicineStatus @default(ACTIVE)
+  isDeleted     Boolean        @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  typeId String?
+  type   MedicineType? @relation(fields: [typeId], references: [id])
+
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+
+  unitId String?
+  unit   Unit?   @relation(fields: [unitId], references: [id])
+
+  leafSettingId String?
+  leafSetting   LeafSetting? @relation(fields: [leafSettingId], references: [id])
+
+  inventory     PharmacyInventory[]
+  requests      MedicineRequest[]
+  purchaseItems PurchaseItem[]
+  invoiceItems  InvoiceItem[]
+
+  @@map("medicines")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  medicines Medicine[]
+
+  @@map("categories")
+}
+
+model MedicineType {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  medicines Medicine[]
+
+  @@map("medicine_types")
+}
+
+model Unit {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  symbol    String
+  isActive  Boolean   @default(true)
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  medicines Medicine[]
+
+  @@map("units")
+}
+
+model PharmacyInventory {
+  id                    String                  @id @default(cuid())
+  pharmacyId            String
+  medicineId            String
+  batchNumber           String?
+  stockQuantity         Int                     @default(0)
+  sellingPrice          Decimal                 @db.Decimal(10, 2)
+  purchasePrice         Decimal?                @db.Decimal(10, 2)
+  expiryDate            DateTime?
+  shelf                 String?
+  lowStockAlertQuantity Int                     @default(10)
+  status                PharmacyInventoryStatus @default(ACTIVE)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  pharmacy      Pharmacy       @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  medicine      Medicine       @relation(fields: [medicineId], references: [id])
+  purchaseItems PurchaseItem[]
+  invoiceItems  InvoiceItem[]
+
+  @@index([pharmacyId, status])
+  @@index([medicineId])
+  @@map("pharmacy_inventory")
+}
+
+model MedicineRequest {
+  id                 String                @id @default(cuid())
+  pharmacyId         String
+  requestedName      String
+  genericName        String?
+  categorySuggestion String?
+  typeSuggestion     String?
+  unitSuggestion     String?
+  strength           String?
+  companyName        String?
+  note               String?
+  status             MedicineRequestStatus @default(PENDING)
+  adminNote          String?
+  medicineId         String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  pharmacy Pharmacy  @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  medicine Medicine? @relation(fields: [medicineId], references: [id], onDelete: SetNull)
+
+  @@index([pharmacyId, status])
+  @@index([status])
+  @@map("medicine_requests")
+}
