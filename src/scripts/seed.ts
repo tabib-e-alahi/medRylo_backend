@@ -1,19 +1,3 @@
-/**
- * MediTrack — Prisma Seed File
- * Run: cd med_server && npx tsx prisma/seed.ts
- *
- * Creates:
- *  - 4 demo users (admin, pharmacy, staff, user)
- *  - 1 approved pharmacy  + 1 pending + 1 rejected
- *  - 1 staff member linked to approved pharmacy
- *  - Categories, MedicineTypes, Units, LeafSettings, Suppliers
- *  - 12 medicines
- *  - Pharmacy inventory (incl. low-stock + expiring-soon items)
- *  - 3 customers
- *  - 2 purchases (one PENDING, one RECEIVED)
- *  - 3 invoices (UNPAID, PARTIAL, PAID) with matching Payment records
- */
-
 import { auth } from "../lib/auth";
 import { prisma } from "../lib/prisma";
 
